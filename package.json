@@ -3,7 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "dev": "next dev",
+    "dev": "node server.js",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"
@@ -13,6 +13,8 @@
     "@fortawesome/free-brands-svg-icons": "^5.15.4",
     "@fortawesome/free-solid-svg-icons": "^5.15.4",
     "@fortawesome/react-fontawesome": "^0.1.15",
+    "body-parser": "^1.19.0",
+    "express": "^4.17.1",
     "next": "11.1.2",
     "react": "17.0.2",
     "react-dom": "17.0.2",

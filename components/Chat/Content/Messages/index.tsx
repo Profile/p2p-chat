@@ -1,21 +1,36 @@
 import {Message} from "../Message";
+import {useEffect} from "react";
 
-export function Messages() {
+export function Messages({chat, socket}) {
 
-     function isMine (senderId: number) {
-        return senderId % 2 === 0
+     const isMine = (message: number) => {
+        return message.socketId === socket.id
     }
+
+    const playReceiveSound = async () => {
+        const receiveAudio = await new Audio('/sounds/receive.mp3')
+        receiveAudio.play()
+    };
+
+    useEffect(() => {
+        chat.length && playReceiveSound()
+    }, [chat.length]);
 
     return (
         <div className="messages-list bg-chat-content overflow-y-auto px-8 py-3 flex-1">
             {
-                Array(5).fill(null).map((item, itemIndex) =>(
-                    <div className={`mb-2 flex justify-${isMine(itemIndex) ? 'end' : 'start'}`}>
+                chat.map((item, itemIndex) =>(
+                    <div className={`mb-4 flex justify-${isMine(item) ? 'end' : 'start'}`} key={itemIndex}>
                         <div className="max-w-lg">
-                            <div className={`bg-message-item-${isMine(itemIndex) ? 'sent' : 'receive'} text-white px-5 py-3 text-sm rounded-smooth`}>
-                                <Message />
+                            <p className="text-xs text-gray-100 mb-2">
+                                {item.user.username}
+                            </p>
+                            <div className={`mb-2 bg-message-item-${isMine(item) ? 'sent' : 'receive'} text-white px-5 py-3 text-sm rounded-smooth`}>
+                                <Message item={item} />
                             </div>
-                            <p className="text-xs text-gray-200">12:30</p>
+                            <p className="text-xs text-gray-200">
+                                {item.sentDate}
+                            </p>
                         </div>
                     </div>
                 ))

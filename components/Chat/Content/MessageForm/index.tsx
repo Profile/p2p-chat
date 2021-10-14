@@ -1,6 +1,7 @@
 import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPaperPlane} from "@fortawesome/free-solid-svg-icons";
 import React, {useState} from "react";
+import {useRouter} from "next/router";
 
 interface IMessageFormProps {
     user: {
@@ -10,33 +11,26 @@ interface IMessageFormProps {
 
 export function MessageForm ({ user }: IMessageFormProps) {
 
-    const [msg, setMsg] = useState<string>();
-
+    const [message, setMessage] = useState<string>();
+    const router = useRouter();
 
     function handleInputTyping (e:React.SyntheticEvent) {
-        setMsg((e.target as HTMLTextAreaElement).value)
+        setMessage((e.target as HTMLTextAreaElement).value)
     }
     function handleFormSubmit (e: React.SyntheticEvent) {
         e.preventDefault();
         sendMessage()
     }
 
-    function canSend () {
-
-    }
-
     const sendMessage = async () => {
-        if (!msg) {
+        if (!message) {
             alert("Empty message")
         }
         // build message obj
-        const message = {
-            roomId: 1,
-            userId: user.id,
-            msg,
+        const payload = {
+            user,
+            message,
         };
-
-        console.log(message)
 
         // dispatch message to other users
         const resp = await fetch("/api/send", {
@@ -44,17 +38,22 @@ export function MessageForm ({ user }: IMessageFormProps) {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify(message),
+            body: JSON.stringify(payload),
         });
 
-        if (resp.ok) setMsg("");
+
+        if (!resp.ok) return
+
+        setMessage("");
+        const sendAudio = await new Audio('/sounds/send.mp3')
+        sendAudio.play();
     }
 
     return (
         <div className="px-8 py-4 bg-smooth border-t border-tiny">
             <div className="m-0 p-0 flex items-end">
                 <div className="flex-1">
-                    <textarea name="" id="" className="w-full" onChange={handleInputTyping}></textarea>
+                    <textarea value={message} className="w-full" onChange={handleInputTyping}></textarea>
                 </div>
                 <button type="submit" className="w-14 p-4" onClick={handleFormSubmit}>
                     <FontAwesomeIcon icon={faPaperPlane} color="white" />
