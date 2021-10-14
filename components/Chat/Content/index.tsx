@@ -2,9 +2,10 @@ import {useChatContext} from "../Context";
 import {Header as ContentHeader} from "./Header";
 import {Messages} from "./Messages";
 import {MessageForm} from "./MessageForm";
+import {IChatContext} from "./models";
 
 export function Content () {
-    const chatContext = useChatContext();
+    const chatContext: IChatContext = useChatContext();
     console.log(chatContext)
 
     return (

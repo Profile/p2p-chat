@@ -1,9 +1,10 @@
 import {Message} from "../Message";
 import {useEffect} from "react";
+import {IChatContext, IMessage} from "../models";
 
-export function Messages({chat, socket}) {
+export function Messages({chat, socket}: IChatContext) {
 
-     const isMine = (message: number) => {
+     const isMine = (message: IMessage) => {
         return message.socketId === socket.id
     }
 
@@ -19,7 +20,7 @@ export function Messages({chat, socket}) {
     return (
         <div className="messages-list bg-chat-content overflow-y-auto px-8 py-3 flex-1">
             {
-                chat.map((item, itemIndex) =>(
+                chat.map((item: IMessage, itemIndex: number) =>(
                     <div className={`mb-4 flex justify-${isMine(item) ? 'end' : 'start'}`} key={itemIndex}>
                         <div className="max-w-lg">
                             <p className="text-xs text-gray-100 mb-2">
