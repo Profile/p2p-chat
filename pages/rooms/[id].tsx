@@ -10,16 +10,20 @@ import { Messages } from "../../components/Chat/Content/Messages";
 import { Header as ContentHeader } from "../../components/Chat/Content/Header";
 import {ChatContext, ChatContextWrapper, useChatContext} from "../../components/Chat/Context";
 import {MessageForm} from "../../components/Chat/Content/MessageForm";
-import {useContext} from "react";
+import {useContext, useEffect, useState} from "react";
 import {Content} from "../../components/Chat/Content";
 
-// create random user
-const user = {
-    id:  new Date().getTime().toString(),
-    username: new Date().getTime().toString()
-};
-
 const ChatRoom: NextPage = () => {
+
+    // const [userId, setUser] = useState<string>("");
+    //
+    // useEffect(() => {
+    //
+    //     if(localStorage.getItem("userId")) {
+    //         setUser(localStorage.getItem("userId") || "");
+    //     }
+    //
+    // }, []);
 
     return (
         <div>
@@ -32,7 +36,7 @@ const ChatRoom: NextPage = () => {
                 <div className="bg-blue-800 fixed">
                     <img className="w-screen h-screen opacity-90" src="/macos-big-sur-apple-layers.jpeg" />
                 </div>
-                <ChatContextWrapper user={user}>
+                <ChatContextWrapper>
                     <div className="inner fixed w-full h-full z-10">
                         <div className="p-8 w-full h-full">
                             <div className="relative w-full h-full overflow-hidden rounded-smooth border border-tiny">

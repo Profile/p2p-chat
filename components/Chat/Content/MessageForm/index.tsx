@@ -2,11 +2,10 @@ import {FontAwesomeIcon} from "@fortawesome/react-fontawesome";
 import {faPaperPlane} from "@fortawesome/free-solid-svg-icons";
 import React, {useState} from "react";
 import {useRouter} from "next/router";
+import {IUser} from "../../Context";
 
 interface IMessageFormProps {
-    user: {
-        id: string
-    }
+    user: IUser
 }
 
 export function MessageForm ({ user }: IMessageFormProps) {
@@ -19,13 +18,13 @@ export function MessageForm ({ user }: IMessageFormProps) {
     }
     function handleFormSubmit (e: React.SyntheticEvent) {
         e.preventDefault();
+        if (!message?.trim().length) {
+            return alert("Empty message")
+        }
         sendMessage()
     }
 
     const sendMessage = async () => {
-        if (!message) {
-            alert("Empty message")
-        }
         // build message obj
         const payload = {
             user,
@@ -51,14 +50,14 @@ export function MessageForm ({ user }: IMessageFormProps) {
 
     return (
         <div className="px-8 py-4 bg-smooth border-t border-tiny">
-            <div className="m-0 p-0 flex items-end">
+            <form className="m-0 p-0 flex items-end">
                 <div className="flex-1">
-                    <textarea value={message} className="w-full" onChange={handleInputTyping}></textarea>
+                    <input value={message} className="h-12 w-full" onChange={handleInputTyping}/>
                 </div>
                 <button type="submit" className="w-14 p-4" onClick={handleFormSubmit}>
                     <FontAwesomeIcon icon={faPaperPlane} color="white" />
                 </button>
-            </div>
+            </form>
         </div>
     )
 }

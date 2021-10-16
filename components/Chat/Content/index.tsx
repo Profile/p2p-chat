@@ -11,11 +11,11 @@ export function Content () {
     return (
         <div className="w-full h-full z-10 relative flex flex-col">
             {
-                chatContext?.room?.users && chatContext.socket && (
+                chatContext?.room?.users && chatContext.user && (
                     <>
-                        <ContentHeader />
-                        <Messages chat={chatContext.chat} socket={chatContext.socket}  />
-                        <MessageForm user={chatContext.room.users[chatContext.socket.id]} />
+                        <ContentHeader room={chatContext.room} user={chatContext.user} />
+                        <Messages chat={chatContext.chat} user={chatContext.user}  />
+                        <MessageForm user={chatContext.user} />
                     </>
                 )
             }

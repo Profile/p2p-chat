@@ -1,4 +1,5 @@
 module.exports = {
+  //TODO: uncomment when fix conditional className
   purge: [], //['./pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
   darkMode: "class", // or 'media' or 'class'
   theme: {

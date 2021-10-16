@@ -2,7 +2,8 @@ const app = require('express')()
 var bodyParser = require('body-parser')
 const server = require('http').Server(app)
 const io = require('socket.io')(server)
-const next = require('next')
+const next = require('next');
+const { v4: uuidv4 } = require('uuid');
 
 const PORT = process.env.PORT || 3000;
 
@@ -18,17 +19,16 @@ const rooms = {}
 
 // socket.io server
 io.on('connection', socket => {
-    console.log('SOCKET CONNECTED')
-    socket.on('message', (data) => {
-        console.log("YOU HAVE MESSAGE")
-        messages.push(data)
-        socket.broadcast.emit('message', data)
-    });
+    // socket.on('message', (data) => {
+    //     messages.push(data)
+    //     socket.broadcast.emit('message', data)
+    // });
     socket.on('disconnect', (data) => {
         const roomId = socket.handshake.query.roomId;
-        const leftUser = rooms[roomId].users[socket.id];
-        delete rooms[roomId].users[socket.id];
-        if(!Object.keys(rooms[roomId].users).length) {
+        const userId = socket.handshake.query.userId;
+        const leftUser = rooms[roomId]?.users[socket.id];
+        delete rooms[roomId]?.users[userId];
+        if(!Object.keys(rooms[roomId]?.users || {}).length) {
             delete rooms[roomId]
         }
 
@@ -40,43 +40,99 @@ io.on('connection', socket => {
     });
     socket.on('join', (data) => {
 
-        const joinedUser = {
-            ...data,
-            socketId: socket.id
+        if(!rooms[data.roomId] || !rooms[data.roomId].users[data.userId]) {
+            return console.log("roomId or userId not found")
         }
 
-        rooms[joinedUser.roomId] = {
-            name: new Date().toString(),
+        const userFromRoom = {
+            ...rooms[data.roomId].users[data.userId],
+            joined: new Date(),
+            socketId: socket.id
+        };
+
+        rooms[data.roomId] = {
+            ...rooms[data.roomId],
             users: {
-                ...((rooms[joinedUser.roomId] || {}).users || {}),
-                [socket.id]: joinedUser
+                ...((rooms[data.roomId] || {}).users || {}),
+                [userFromRoom.id]: userFromRoom
             }
         }
 
-        socket.join(joinedUser.roomId);
-        io.in(joinedUser.roomId).emit('joined', {
-            joinedUser,
-            room: rooms[joinedUser.roomId]
+        socket.join(userFromRoom.roomId);
+        io.in(userFromRoom.roomId).emit('joined', {
+            user: userFromRoom,
+            room: rooms[userFromRoom.roomId]
         });
     });
 })
 
 nextApp.prepare().then(() => {
+    app.post('/api/rooms', (req, res) => {
+        const roomId = uuidv4();
+        const userId = uuidv4();
+        rooms[roomId] = {
+            name: req?.body?.roomName || roomId,
+            id: roomId,
+            creator: userId,
+            created: new Date(),
+            users: {
+                [userId]: {
+                    id: userId,
+                    roomId: roomId,
+                    username: req?.body?.username || `USER-${userId}`,
+                    created: new Date(),
+                    joined: null,
+                }
+            }
+        }
+
+        return res.status(200).json({
+            roomId,
+            userId
+        });
+    });
+
+    app.post('/api/rooms/join', (req, res) => {
+
+        if(!rooms[req?.body?.roomId]) return res.status(404).json({
+            message: "NOT_FOUND"
+        })
+
+        const userId = uuidv4();
+        rooms[req?.body?.roomId] = {
+            ...rooms[req?.body?.roomId],
+            users: {
+                ...rooms[req?.body?.roomId].users,
+                [userId]: {
+                    id: userId,
+                    created: new Date(),
+                    joined: null,
+                    roomId: req?.body?.roomId,
+                    username: req?.body?.username || `USER-${userId}`
+                }
+            }
+        }
+
+        return res.status(200).json({
+            roomId: req?.body?.roomId,
+            userId
+        })
+
+    });
+
     app.post('/api/send', (req, res) => {
 
-        console.log(req.body)
 
         if(!rooms[req.body?.user?.roomId]) {
             return res.status(404).json({ message: "NOT_FOUND" })
         }
 
-        if(!rooms[req.body.user.roomId].users[req.body.user.socketId]) {
+        if(!rooms[req.body.user.roomId].users[req.body.user.id]) {
             return res.status(403).json({ message: "FORBIDDEN" })
         }
 
         io.in(req.body?.user?.roomId).emit('message', {
             ...req.body,
-            ...req.body.user,
             sentDate: new Date()
         })
 

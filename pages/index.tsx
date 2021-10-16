@@ -1,8 +1,82 @@
 import type { NextPage } from 'next'
 import Head from 'next/head'
+import {useState} from "react";
+import {ISuccessRoomActionRs, roomsServices} from "../services/rooms";
 
+export interface ICreateRoomFormValues {
+    username: string;
+    roomName: string;
+}
+
+export interface IJoinRoomFormValues {
+    username: string;
+    roomId: string;
+}
+
+interface IRoomFormValues extends ICreateRoomFormValues, IJoinRoomFormValues{
+
+}
+
+
+function isValidFormValues <T>(values:T): boolean {
+    return Object.values(values).every( val => (val || "").trim().length >= 2) || false;
+}
+
+const services = {
+    "create": {
+        call: async (formValues: IRoomFormValues) => {
+            const {roomId, ...rest} = formValues;
+            if(!isValidFormValues<ICreateRoomFormValues>(rest)) return alert("Required fields")
+
+            const response: ISuccessRoomActionRs = await roomsServices.create(rest);
+            localStorage.setItem("userId", response.userId);
+            location.assign(`/rooms/${response.roomId}`)
+        }
+    },
+    "join": {
+        call: async (formValues: IRoomFormValues) => {
+            const {roomName, ...rest} = formValues;
+            if(!isValidFormValues<IJoinRoomFormValues>(rest)) return alert("Required fields")
+
+            const response: ISuccessRoomActionRs = await roomsServices.join(rest);
+            localStorage.setItem("userId", response.userId);
+            location.assign(`/rooms/${response.roomId}`)
+        }
+    }
+}
 
 const Home: NextPage = () => {
+
+    const [formValues, setFormValues] = useState<IRoomFormValues>({
+        username: "",
+        roomName: "",
+        roomId: ""
+    });
+
+    const[loading, setLoading] = useState(false);
+
+    const [currentTab, setCurrentTab] = useState<string>("create");
+
+    const handleFormChange = (key:string, value:string) => {
+        setFormValues(prev => ({
+            ...prev,
+            [key] : value
+        }))
+    }
+
+
+    const handleFormSubmit = async () => {
+        setLoading(true);
+        try {
+            // @ts-ignore
+            await services[currentTab].call(formValues);
+        } catch (e) {
+            console.log(e)
+            alert("Something is wrong")
+        }
+        setLoading(false);
+    }
+
   return (
     <div className="w-full h-full">
       <Head>
@@ -11,10 +85,77 @@ const Home: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-        <div className="flex items-center justify-center w-full h-full">
-            <h3 className="text-4xl">
-                Welcome
-            </h3>
+        <div className="flex items-center justify-center w-screen h-screen rounded-smooth">
+            <div className="bg-green-500 p-4 rounded-smooth">
+                <div className="flex justify-center w-full">
+                    <button className={`bg-${currentTab === "create" ? "gray" : "green"}-500 p-3 text-white`} onClick={() => setCurrentTab("create")}>
+                        Create room
+                    </button>
+                    <div className="ml-3" />
+                    <button className={`bg-${currentTab === "join" ? "gray" : "green"}-500 p-3 text-white`} onClick={() => setCurrentTab("join")}>
+                        Join room
+                    </button>
+                </div>
+                <div className="text-center mt-2 w-full">
+                    <label htmlFor="username" className="text-2xl">
+                        {currentTab} room
+                    </label>
+                </div>
+                <div className="p-4">
+                    <div className="flex flex-col mb-3">
+                        <label htmlFor="username" className="mb-2 text-lg">
+                            <span>Username</span>
+                            <span className="text-sm ml-1">(min 5 character)</span>
+                        </label>
+                        <input
+                            id="username"
+                            value={formValues.username}
+                            type="text"
+                            className="py-3 px-5 rounded-smooth"
+                            onChange={(e) => handleFormChange("username", e.target.value)}
+                        />
+                    </div>
+
+                    {
+                        currentTab === "create" ? (
+                            <div className="flex flex-col mb-3">
+                                <label htmlFor="roomName" className="mb-2 text-lg">
+                                    <span>Room</span>
+                                    <span className="text-sm ml-1">(min 5 character)</span>
+                                </label>
+                                <input
+                                    id="roomName"
+                                    value={formValues.roomName}
+                                    type="text"
+                                    className="py-3 px-5 rounded-smooth"
+                                    name="roomName"
+                                    onChange={(e) => handleFormChange("roomName", e.target.value)}
+                                />
+                            </div>
+                        ) : (
+                            <div className="flex flex-col mb-3">
+                                <label htmlFor="roomId" className="mb-2 text-lg">
+                                    <span>Room ID</span>
+                                </label>
+                                <input
+                                    id="roomId"
+                                    value={formValues.roomId}
+                                    type="text"
+                                    className="py-3 px-5 rounded-smooth"
+                                    name="roomId"
+                                    onChange={(e) => handleFormChange("roomId", e.target.value)}
+                                />
+                            </div>
+                        )
+                    }
+
+                    <button disabled={loading} type="submit" onClick={handleFormSubmit} className="bg-gray-900 py-3 px-12 w-full text-white py-3 px-5 rounded-smooth">
+                        {
+                            loading ? "Wait..." : "Submit"
+                        }
+                    </button>
+                </div>
+            </div>
         </div>
 
     </div>

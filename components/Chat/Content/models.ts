@@ -1,9 +1,12 @@
+import {IUser} from "../Context";
+
 export interface IChatContext {
     room?: {
-        users?: any[]
+        users: IUser[]
     },
     socket?: any;
-    chat?: any
+    chat?: any;
+    user?: IUser | null
 }
 
 export interface IMessage {
