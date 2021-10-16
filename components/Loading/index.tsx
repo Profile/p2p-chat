@@ -14,7 +14,7 @@ interface ILoadingProps {
 
 function DefaultSpinner () {
     return (
-        <div className={LoadingTheme.loader}></div>
+        <div data-testid="defaultSpinner" className={LoadingTheme.loader}></div>
     )
 }
 
@@ -27,7 +27,9 @@ export function Loading({ visible, children, message = <DefaultSpinner /> }: ILo
                     {message}
                 </div>
             )}
-            {children}
+            <div data-testid="children">
+                {children}
+            </div>
         </div>
     )
 
