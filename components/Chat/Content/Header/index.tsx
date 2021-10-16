@@ -11,7 +11,7 @@ export function Header ({ room, user }: IChatContext) {
                 <b className="font-bold">{room?.name}</b>
                 <div>
                     <code className="text-sm">
-                        {room.id}
+                        {room?.id}
                     </code>
                 </div>
             </h2>
