@@ -16,7 +16,7 @@ export function Messages({chat, user}: IChatContext) {
     };
 
     useEffect(() => {
-        if(!chat.length) return
+        if(!chat.length || process.env.NODE_ENV == "test") return
 
         playReceiveSound();
 
@@ -33,10 +33,10 @@ export function Messages({chat, user}: IChatContext) {
     }
 
     return (
-        <div className="messages-list bg-chat-content overflow-y-auto px-8 py-3 flex-1" ref={elRef}>
+        <div data-testid="messages" className="messages-list bg-chat-content overflow-y-auto px-8 py-3 flex-1" ref={elRef}>
             {
                 chat.map((item: IMessage, itemIndex: number) =>(
-                    <div className={`mb-4 flex justify-${isMine(item) ? 'end' : 'start'}`} key={itemIndex}>
+                    <div  className={`mb-4 flex justify-${isMine(item) ? 'end isMine' : 'start isOther'}`} key={itemIndex}>
                        <div ref={ itemIndex === chat.length - 1 ? elRef: null }>
                            <div className={`max-w-lg flex items-center justify-${isMine(item) ? 'end' : 'start'} flex-shrink-0`}>
                                {

@@ -44,6 +44,9 @@ export function MessageForm ({ user }: IMessageFormProps) {
         if (!resp.ok) return
 
         setMessage("");
+
+        if(process.env.NODE_ENV == "test") return;
+
         const sendAudio = await new Audio('/sounds/send.mp3')
         sendAudio.play();
     }

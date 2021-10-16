@@ -6,7 +6,6 @@ import {IChatContext} from "./models";
 
 export function Content () {
     const chatContext: IChatContext = useChatContext();
-    console.log(chatContext)
 
     return (
         <div className="w-full h-full z-10 relative flex flex-col">
