@@ -21,10 +21,16 @@ export function Messages({chat, user}: IChatContext) {
         playReceiveSound();
 
         if(elRef.current) {
+            //@ts-ignore
             elRef.current.scrollIntoView({ behavior: "smooth" })
         }
 
     }, [chat.length]);
+
+    const isNextSamePerson = (item: any, itemIndex: number) => {
+        // const before = chat[itemIndex - 1]?.user.id === item?.user.id;
+        return chat[itemIndex + 1]?.user.id === item?.user.id;
+    }
 
     return (
         <div className="messages-list bg-chat-content overflow-y-auto px-8 py-3 flex-1" ref={elRef}>
@@ -32,8 +38,9 @@ export function Messages({chat, user}: IChatContext) {
                 chat.map((item: IMessage, itemIndex: number) =>(
                     <div className={`mb-4 flex justify-${isMine(item) ? 'end' : 'start'}`} key={itemIndex}>
                        <div ref={ itemIndex === chat.length - 1 ? elRef: null }>
-                           <div className="max-w-lg flex items-center justify-end flex-shrink-0">
+                           <div className={`max-w-lg flex items-center justify-${isMine(item) ? 'end' : 'start'} flex-shrink-0`}>
                                {
+                                   // !isNextSamePerson(item, itemIndex) //TODO: it works but I don`t like
                                    !isMine(item) && (
                                        <div className="w-full">
                                            {/*<p className="text-xs text-gray-200 mb-3">*/}

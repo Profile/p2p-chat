@@ -7,7 +7,14 @@ export function Header ({ room, user }: IChatContext) {
     }
     return  (
         <div className="px-8 py-6 bg-smooth border-b">
-            <h2 className="text-white text-2xl mb-4">Room</h2>
+            <h2 className="text-white text-2xl mb-4">
+                <b className="font-bold">{room?.name}</b>
+                <div>
+                    <code className="text-sm">
+                        {room.id}
+                    </code>
+                </div>
+            </h2>
             <div className="border-tiny flex items-center overflow-x-auto">
                 {
                     Object.values(room?.users || {}).map((chatUser: IUser, index) => {
